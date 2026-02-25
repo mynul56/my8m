@@ -16,6 +16,7 @@ export const GenericNode = ({ data, isConnectable }: NodeProps) => {
             gap: '8px'
         }}>
             {/* Target Handle (Input) */}
+            {/* @ts-ignore */}
             <Handle
                 type="target"
                 position={Position.Left}
@@ -33,6 +34,7 @@ export const GenericNode = ({ data, isConnectable }: NodeProps) => {
             </div>
 
             {/* Source Handle (Output) */}
+            {/* @ts-ignore */}
             <Handle
                 type="source"
                 position={Position.Right}

@@ -125,7 +125,9 @@ const Flow = () => {
                     style={{ position: 'absolute', top: 16, right: 16, zIndex: 4, padding: '10px 20px', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
                     ▶ Execute Workflow
                 </button>
+                {/* @ts-ignore React Node type conflict */}
                 <ReactFlowProvider>
+                    {/* @ts-ignore React Node type conflict */}
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
@@ -137,8 +139,11 @@ const Flow = () => {
                         nodeTypes={nodeTypes}
                         fitView
                     >
+                        {/* @ts-ignore React Node type conflict */}
                         <Background color="#555" gap={16} />
+                        {/* @ts-ignore React Node type conflict */}
                         <Controls />
+                        {/* @ts-ignore React Node type conflict */}
                         <MiniMap style={{ background: '#252526' }} nodeColor="#3498db" maskColor="rgba(0,0,0,0.5)" />
                     </ReactFlow>
                 </ReactFlowProvider>
