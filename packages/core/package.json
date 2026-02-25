@@ -1,0 +1,16 @@
+{
+    "name": "@my8m/core",
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "scripts": {
+        "lint": "eslint \"src/**/*.ts*\"",
+        "build": "tsc"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@my8m/typescript-config": "*",
+        "@types/node": "^18.0.0",
+        "typescript": "^5.0.0"
+    }
+}

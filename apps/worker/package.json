@@ -1,0 +1,22 @@
+{
+    "name": "worker",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "build": "tsc",
+        "dev": "ts-node-dev src/index.ts",
+        "start": "node dist/index.js",
+        "lint": "eslint \"src/**/*.ts*\""
+    },
+    "dependencies": {
+        "@my8m/core": "*",
+        "@my8m/database": "*",
+        "bullmq": "^5.0.0"
+    },
+    "devDependencies": {
+        "@my8m/typescript-config": "*",
+        "@types/node": "^18.0.0",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.0.0"
+    }
+}
