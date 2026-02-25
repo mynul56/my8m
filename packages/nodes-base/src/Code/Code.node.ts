@@ -31,11 +31,13 @@ export class CodeNode implements INodeType {
 
         try {
             // Execute arbitrary user JS. Since vm doesn't strictly prevent infinite loops on its own without timeouts:
-            const script = new vm.Script(`
+            const codeString = `
             (function() {
                 ${jsCode}
             })()
-        `);
+        `;
+            console.log("[CodeNode] Attempting to compile script:\n", codeString);
+            const script = new vm.Script(codeString);
 
             let result = script.runInContext(sandboxContext, {
                 timeout: 5000 // Force halt if the script exceeds 5 seconds
