@@ -1,10 +1,26 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { Queue } from 'bullmq';
+import jwt from 'jsonwebtoken';
+import { getAvailableNodes } from '@my8m/nodes-base';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Auth Middleware
+const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+    jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_key', (err: jwt.VerifyErrors | null, user: any) => {
+        if (err) return res.status(403).json({ error: 'Forbidden' });
+        (req as any).user = user;
+        next();
+    });
+};
 
 const connection = {
     host: process.env.REDIS_HOST || 'localhost',
@@ -13,6 +29,16 @@ const connection = {
 
 const executionQueue = new Queue('global_executions', { connection });
 
+// Secure all /api routes except public endpoints
+app.use('/api', authenticateToken);
+
+// 1. Get Available Nodes for Frontend Builder
+app.get('/api/nodes', (req, res) => {
+    const nodes = getAvailableNodes();
+    res.json({ data: nodes });
+});
+
+// 2. Trigger Workflow Execution
 app.post('/api/workflows/:id/execute', async (req, res) => {
     const { id } = req.params;
     const triggerData = req.body;
