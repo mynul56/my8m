@@ -16,9 +16,11 @@ export class CodeNode implements INodeType {
 
         const returnData: IItem[] = [];
 
+        const mappedItems = items.map(i => i.json);
         // Provide a sandboxed environment for the code
         const sandboxContext = {
-            $input: items.map(i => i.json),
+            $input: mappedItems,
+            items: mappedItems, // Alias for easier JS writing
             $env: {}, // Add safe env vars if needed
             console: {
                 log: (...args: any[]) => context.log(args.join(' ')),
