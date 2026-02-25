@@ -41,7 +41,7 @@ app.get('/api/nodes', (req, res) => {
 // 2. Trigger Workflow Execution
 app.post('/api/workflows/:id/execute', async (req, res) => {
     const { id } = req.params;
-    const triggerData = req.body;
+    const { nodes, connections, triggerData } = req.body;
 
     const executionId = `exec_${Date.now()}`;
 
@@ -49,6 +49,8 @@ app.post('/api/workflows/:id/execute', async (req, res) => {
     const job = await executionQueue.add('execute-workflow', {
         executionId,
         workflowId: id,
+        nodes,
+        connections,
         triggerData,
     });
 

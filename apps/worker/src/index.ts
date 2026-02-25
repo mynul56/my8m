@@ -1,4 +1,6 @@
 import { Worker, Job } from 'bullmq';
+import { ExecutionEngine, StateTracker } from '@my8m/core';
+import { NodeRegistry } from '@my8m/nodes-base';
 
 const connection = {
     host: process.env.REDIS_HOST || 'localhost',
@@ -10,11 +12,25 @@ console.log('[Worker] Starting up...');
 const executeJob = async (job: Job) => {
     console.log(`[Worker] Picked up job ${job.id} for Execution ID: ${job.data.executionId}`);
 
-    // Fake delay mimicking engine DAG execution
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    const { nodes, connections, triggerData } = job.data;
 
-    console.log(`[Worker] Successfully finished job ${job.id} - DAG Executed Topological steps.`);
-    return { status: 'SUCCESS' };
+    if (!nodes || !connections) {
+        console.warn(`[Worker] Job ${job.id} has no valid DAG topology.`);
+        return { status: 'NO_OP' };
+    }
+
+    try {
+        const engine = new ExecutionEngine(nodes, connections, NodeRegistry);
+        const state = new StateTracker();
+
+        console.log(`[Worker] Starting core DAG Execution. Node counts: ${nodes.length}, Edges: ${connections.length}`);
+        await engine.run(triggerData || {}, state);
+
+        console.log(`[Worker] Successfully finished job ${job.id} topological execution.`);
+        return { status: 'SUCCESS' };
+    } catch (err: any) {
+        throw new Error(`DAG Execution Failed: ${err.message}`);
+    }
 };
 
 const worker = new Worker('global_executions', executeJob, {

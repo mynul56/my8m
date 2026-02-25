@@ -1,6 +1,9 @@
 import { INodeType } from '@my8m/core';
 import { HttpRequestNode } from './HttpRequests/HttpRequest.node';
 import { CodeNode } from './Code/Code.node';
+import { SetNode } from './Set/Set.node';
+import { IfNode } from './If/If.node';
+import { MergeNode } from './Merge/Merge.node';
 
 // Central Registry Map for dynamic loading
 export const NodeRegistry = new Map<string, INodeType>();
@@ -13,6 +16,9 @@ const register = (typeClass: new () => INodeType) => {
 // Instead of reflection, manually register the official nodes here
 register(HttpRequestNode);
 register(CodeNode);
+register(SetNode);
+register(IfNode);
+register(MergeNode);
 
 /**
  * Returns a generic schema representation of all loaded nodes

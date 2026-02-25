@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import ReactFlow, { Background, Controls, MiniMap, ReactFlowProvider } from 'reactflow';
 import useStore from './store/useStore';
 import { GenericNode } from './components/GenericNode';
+import { PropertiesSidebar } from './components/PropertiesSidebar';
 import axios from 'axios';
 
 const nodeTypes = {
@@ -10,20 +11,42 @@ const nodeTypes = {
 
 const Flow = () => {
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
-    const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode } = useStore();
-    const [availableNodes, setAvailableNodes] = useState<any[]>([]);
+    const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, availableNodes, setAvailableNodes } = useStore();
 
     useEffect(() => {
         // Fetch dynamic Node Registry from API Server
         axios.get('http://localhost:3000/api/nodes', {
             headers: {
-                // Providing a mock auth header just to bypass the JWT middleware for testing purposes
                 Authorization: 'Bearer mock_token_for_dev'
             }
         })
             .then(res => setAvailableNodes(res.data.data))
             .catch(console.error);
-    }, []);
+    }, [setAvailableNodes]);
+
+    const executeWorkflow = () => {
+        const payload = {
+            nodes: nodes.map(n => ({
+                id: n.id,
+                name: n.data.label || n.data.type,
+                type: n.data.type,
+                parameters: { ...n.data }
+            })),
+            connections: edges.map(e => ({
+                source: e.source,
+                target: e.target,
+                sourceOutputIndex: parseInt(e.sourceHandle || '0', 10),
+                targetInputIndex: parseInt(e.targetHandle || '0', 10)
+            })),
+            triggerData: { manual: true }
+        };
+
+        axios.post('http://localhost:3000/api/workflows/manual_run/execute', payload, {
+            headers: { Authorization: 'Bearer mock_token_for_dev' }
+        })
+            .then(res => alert('Execution Started! Job ID: ' + res.data.jobId))
+            .catch(err => alert('Error executing workflow: ' + err.message));
+    };
 
     const onDragOver = useCallback((event: React.DragEvent) => {
         event.preventDefault();
@@ -97,6 +120,11 @@ const Flow = () => {
 
             {/* React Flow Canvas Component */}
             <div style={{ flexGrow: 1, position: 'relative' }} ref={reactFlowWrapper}>
+                <button
+                    onClick={executeWorkflow}
+                    style={{ position: 'absolute', top: 16, right: 16, zIndex: 4, padding: '10px 20px', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                    ▶ Execute Workflow
+                </button>
                 <ReactFlowProvider>
                     <ReactFlow
                         nodes={nodes}
@@ -114,6 +142,11 @@ const Flow = () => {
                         <MiniMap style={{ background: '#252526' }} nodeColor="#3498db" maskColor="rgba(0,0,0,0.5)" />
                     </ReactFlow>
                 </ReactFlowProvider>
+            </div>
+
+            {/* Properties Sidebar (Right) */}
+            <div style={{ width: '300px', background: '#252526', borderLeft: '1px solid #333', color: '#ccc', overflowY: 'auto' }}>
+                <PropertiesSidebar />
             </div>
 
         </div>

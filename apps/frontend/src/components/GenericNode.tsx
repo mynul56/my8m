@@ -1,4 +1,3 @@
-import React from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
 
 // Enhanced custom node logic mirroring n8n styling

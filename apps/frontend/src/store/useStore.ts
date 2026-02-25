@@ -16,6 +16,8 @@ import {
 interface RFState {
     nodes: Node[];
     edges: Edge[];
+    availableNodes: any[];
+    setAvailableNodes: (nodes: any[]) => void;
     onNodesChange: OnNodesChange;
     onEdgesChange: OnEdgesChange;
     onConnect: OnConnect;
@@ -27,6 +29,8 @@ interface RFState {
 const useStore = create<RFState>((set, get) => ({
     nodes: [],
     edges: [],
+    availableNodes: [],
+    setAvailableNodes: (nodes) => set({ availableNodes: nodes }),
     onNodesChange: (changes: NodeChange[]) => {
         set({
             nodes: applyNodeChanges(changes, get().nodes),
