@@ -37,9 +37,9 @@ export class CredentialManager {
             throw new Error('Invalid encrypted payload format. Expected iv:authTag:encryptedData');
         }
 
-        const iv = Buffer.from(parts[0], 'hex');
-        const authTag = Buffer.from(parts[1], 'hex');
-        const encryptedText = parts[2];
+        const iv = Buffer.from(parts[0] as string, 'hex');
+        const authTag = Buffer.from(parts[1] as string, 'hex');
+        const encryptedText = parts[2] as string;
 
         const decipher = crypto.createDecipheriv(this.algorithm, this.secretKey, iv) as crypto.DecipherGCM;
         decipher.setAuthTag(authTag);
