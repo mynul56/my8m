@@ -5,7 +5,9 @@
     "types": "src/index.ts",
     "scripts": {
         "lint": "eslint \"src/**/*.ts*\"",
-        "build": "tsc"
+        "build": "tsc",
+        "db:generate": "prisma generate",
+        "db:push": "prisma db push"
     },
     "dependencies": {
         "@prisma/client": "^6.0.0"

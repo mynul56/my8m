@@ -1,15 +1,76 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String?
+  role         String       @default("USER")
+  createdAt    DateTime     @default(now())
+  workflows    Workflow[]
+  credentials  Credential[]
+}
+
+model Workflow {
+  id              String            @id @default(uuid())
+  name            String
+  active          Boolean           @default(false)
+  ownerId         String
+  owner           User              @relation(fields: [ownerId], references: [id])
+  latestVersionId String?
+  versions        WorkflowVersion[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model WorkflowVersion {
+  id          String      @id @default(uuid())
+  workflowId  String
+  workflow    Workflow    @relation(fields: [workflowId], references: [id])
+  nodes       Json
+  connections Json
+  versionNum  Int         @default(1)
+  executions  Execution[]
+  createdAt   DateTime    @default(now())
+}
+
+model Credential {
+  id            String @id @default(uuid())
+  name          String
+  type          String
+  encryptedData String
+  ownerId       String
+  owner         User   @relation(fields: [ownerId], references: [id])
+
+  @@unique([ownerId, name])
+}
+
+model Execution {
+  id                String          @id @default(uuid())
+  workflowVersionId String
+  workflowVersion   WorkflowVersion @relation(fields: [workflowVersionId], references: [id])
+  status            String // QUEUED, RUNNING, COMPLETED, FAILED, WAITING
+  triggerData       Json?
+  startedAt         DateTime?
+  endedAt           DateTime?
+  steps             ExecutionStep[]
+}
+
+model ExecutionStep {
+  id              String    @id @default(uuid())
+  executionId     String
+  execution       Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  nodeId          String
+  status          String? // SUCCESS, FAILED
+  inputData       Json?
+  outputData      Json?
+  errorMsg        String?
+  executionTimeMs Int?
+  createdAt       DateTime  @default(now())
 }
